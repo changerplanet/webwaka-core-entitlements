@@ -1,0 +1,16 @@
+{
+  "moduleId": "webwaka-core-entitlements",
+  "version": "0.0.0",
+  "class": "core",
+  "name": "Entitlements Core",
+  "description": "Pricing & Entitlements - Entitlement and access control",
+  "repository": "https://github.com/changerplanet/webwaka-core-entitlements",
+  "author": "WebWaka Team",
+  "license": "TBD",
+  "capabilities": [],
+  "dependencies": [],
+  "exports": {
+    "types": "./dist/index.d.ts",
+    "main": "./dist/index.js"
+  }
+}
