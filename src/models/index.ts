@@ -1,7 +1,3 @@
-export { EntitlementsEngine } from "./engine";
-export { evaluateWithPrecedence } from "./evaluators";
-export { generateChecksum, verifyChecksum } from "./snapshot";
-
 export {
   EntitlementTypeSchema,
   EntitlementDefinitionSchema,
@@ -14,7 +10,7 @@ export {
   EntitlementResultSchema,
   EffectiveEntitlementSchema,
   EntitlementSnapshotSchema,
-} from "./models";
+} from "./types";
 
 export type {
   EntitlementType,
@@ -28,6 +24,4 @@ export type {
   EntitlementResult,
   EffectiveEntitlement,
   EntitlementSnapshot,
-} from "./models";
-
-export const VERSION = "0.0.0";
+} from "./types";

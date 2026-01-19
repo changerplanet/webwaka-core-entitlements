@@ -1,40 +1,81 @@
 # WebWaka Core Entitlements
 
 ## Overview
-This is a headless TypeScript library providing entitlement and access control functionality for the WebWaka platform. It is a Core Module consumed by Suite modules (POS, SVM, MVM, etc.) through npm package installation or monorepo workspace dependencies.
+A pure, deterministic TypeScript library for entitlement and access control. This is a Core Module (Phase 3C-3) in the WebWaka modular architecture, providing foundational entitlement evaluation infrastructure for Suite modules (POS, SVM, MVM, etc.).
 
 ## Project Structure
 ```
-├── src/              # TypeScript source files
-│   └── index.ts      # Main entry point and exports
-├── dist/             # Compiled JavaScript output (generated)
-├── package.json      # Node.js dependencies and scripts
-├── tsconfig.json     # TypeScript configuration
-└── module.manifest.json  # WebWaka module metadata
+├── src/
+│   ├── models/          # Zod-validated domain models
+│   │   ├── types.ts     # All type definitions and schemas
+│   │   └── index.ts     # Model exports
+│   ├── engine/          # Core entitlements engine
+│   │   ├── EntitlementsEngine.ts
+│   │   └── index.ts
+│   ├── evaluators/      # Precedence evaluation logic
+│   │   ├── precedence.ts
+│   │   └── index.ts
+│   ├── snapshot/        # Snapshot generation and verification
+│   │   ├── checksum.ts
+│   │   └── index.ts
+│   └── index.ts         # Main entry point
+├── tests/               # Vitest test suites
+├── dist/                # Compiled output (generated)
+├── package.json
+├── tsconfig.json
+├── vitest.config.ts
+└── module.manifest.json
 ```
 
-## Development
+## Domain Models
+- `EntitlementDefinition` - Defines an entitlement (boolean/count/usage)
+- `EntitlementGrant` - Time-bound grant from plan/partner/system
+- `EntitlementOverride` - Individual or group override
+- `EntitlementContext` - Evaluation context (subject, tenant, time)
+- `EntitlementSnapshot` - Cacheable, verifiable snapshot
+- `EntitlementResult` - Evaluation result with source attribution
 
-### Build
+## Core Engine APIs
+```typescript
+// Evaluate single entitlement
+evaluateEntitlement(entitlementId, context, grants, overrides): EntitlementResult
+
+// Generate cacheable snapshot
+generateSnapshot(context, grants, overrides): EntitlementSnapshot
+
+// Verify snapshot integrity
+verifySnapshot(snapshot): boolean
+
+// Evaluate from cached snapshot
+evaluateFromSnapshot(entitlementId, snapshot, currentTime): EntitlementResult | null
+```
+
+## Precedence Order (Strict)
+1. Individual overrides
+2. Group-level overrides
+3. Plan-derived grants
+4. Partner-level grants
+5. System defaults
+6. Definition defaults
+
+## Capabilities
+- `entitlement:check`
+- `entitlement:snapshot.generate`
+- `entitlement:snapshot.verify`
+- `entitlement:grant.define`
+- `entitlement:override.apply`
+
+## Development Commands
 ```bash
-npm run build
+npm run build          # Compile TypeScript
+npm run dev            # Watch mode
+npm test               # Run tests
+npm run test:coverage  # Coverage report
+npm run clean          # Remove dist/
 ```
 
-### Watch Mode
-```bash
-npm run dev
-```
-
-### Clean
-```bash
-npm run clean
-```
-
-## Exports
-- `Entitlement` interface
-- `EntitlementCheck` interface
-- `checkEntitlement()` function
-- `VERSION` constant
-
-## Status
-Infrastructure ready with stub implementation. Full business logic pending.
+## Constraints
+- NO UI, NO database persistence, NO network calls
+- Pure TypeScript library only
+- Deterministic evaluation
+- Tenant isolation enforced
