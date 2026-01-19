@@ -349,10 +349,43 @@ describe("EntitlementsEngine - Snapshots", () => {
       const snapshot1 = engine.generateSnapshot(context, grants, []);
       const snapshot2 = engine.generateSnapshot(context, grants, []);
 
+      expect(snapshot1.id).toBe(snapshot2.id);
       expect(snapshot1.checksum).toBe(snapshot2.checksum);
       expect(snapshot1.entitlements).toEqual(snapshot2.entitlements);
       expect(snapshot1.generatedAt).toBe(snapshot2.generatedAt);
       expect(snapshot1.expiresAt).toBe(snapshot2.expiresAt);
+    });
+
+    it("snapshot ID remains stable across 10 repeated evaluations", () => {
+      const engine = new EntitlementsEngine(definitions);
+      const fixedTime = 1700000000000;
+      const context: EntitlementContext = {
+        subjectId: "user_456",
+        tenantId: "tenant_xyz",
+        evaluationTime: fixedTime,
+      };
+      const grants: EntitlementGrant[] = [
+        {
+          id: "grant_1",
+          entitlementId: "seats:max",
+          subjectId: "user_456",
+          tenantId: "tenant_xyz",
+          source: "plan",
+          value: 50,
+          validFrom: fixedTime - 1000,
+        },
+      ];
+
+      const snapshots: string[] = [];
+      for (let i = 0; i < 10; i++) {
+        const snapshot = engine.generateSnapshot(context, grants, []);
+        snapshots.push(snapshot.id);
+      }
+
+      const firstId = snapshots[0];
+      for (let i = 1; i < 10; i++) {
+        expect(snapshots[i]).toBe(firstId);
+      }
     });
   });
 });

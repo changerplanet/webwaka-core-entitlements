@@ -17,8 +17,29 @@ import { generateChecksum, verifyChecksum } from "../snapshot";
 
 const DEFAULT_SNAPSHOT_TTL_MS = 3600000;
 
-function generateSnapshotId(): string {
-  return `snap_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`;
+function simpleHash(str: string): string {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    const char = str.charCodeAt(i);
+    hash = ((hash << 5) - hash) + char;
+    hash = hash & hash;
+  }
+  return Math.abs(hash).toString(16).padStart(8, "0");
+}
+
+function generateSnapshotId(
+  subjectId: string,
+  tenantId: string,
+  generatedAt: number,
+  entitlements: readonly EffectiveEntitlement[]
+): string {
+  const payload = JSON.stringify({
+    subjectId,
+    tenantId,
+    generatedAt,
+    entitlements: entitlements.map((e) => e.entitlementId).sort(),
+  });
+  return `snap_${simpleHash(payload)}`;
 }
 
 export class EntitlementsEngine {
@@ -125,7 +146,7 @@ export class EntitlementsEngine {
     );
 
     const snapshot: EntitlementSnapshot = {
-      id: generateSnapshotId(),
+      id: generateSnapshotId(context.subjectId, context.tenantId, generatedAt, entitlements),
       subjectId: context.subjectId,
       tenantId: context.tenantId,
       generatedAt,
