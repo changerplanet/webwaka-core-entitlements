@@ -1,0 +1,236 @@
+CORE ENTITLEMENTS IMPLEMENTATION
+⸻
+
+CONTEXT
+
+You are implementing Phase 3C-3 of the WebWaka Modular Rebuild.
+
+This is the Core Entitlements Engine.
+
+This module is foundational infrastructure, not a product feature.
+
+⸻
+
+ABSOLUTE CONSTRAINTS (NON-NEGOTIABLE)
+
+🚫 NO UI
+🚫 NO dashboards
+🚫 NO pricing logic
+🚫 NO payments
+🚫 NO subscriptions
+🚫 NO incentives
+🚫 NO affiliate logic
+🚫 NO database persistence (Neon NOT used here)
+🚫 NO network calls
+
+This is a pure, deterministic TypeScript library.
+
+⸻
+
+REPOSITORY
+
+GitHub Repo (already exists):
+changerplanet/webwaka-core-entitlements
+
+You MUST:
+	•	Clone the repo first
+	•	Work directly on main
+	•	Push clean commits back to GitHub
+
+⸻
+
+TECHNOLOGY STACK
+	•	TypeScript (strict)
+	•	Zod (schema validation)
+	•	Jest or Vitest (tests)
+	•	No framework (no React, no FastAPI)
+	•	Node 20 compatible
+
+⸻
+
+IMPLEMENT EXACTLY THE APPROVED SPEC
+
+You MUST implement exactly what is defined in:
+
+Phase 3C-2 — Core Entitlements Specification
+
+No additions. No omissions.
+
+⸻
+
+REQUIRED DOMAIN MODELS (Zod-validated)
+
+Implement all of the following as first-class models:
+	1.	EntitlementDefinition
+	2.	EntitlementGrant
+	3.	EntitlementOverride
+	4.	EntitlementContext
+	5.	EntitlementSnapshot
+	6.	EntitlementResult
+
+Each model must:
+	•	Be immutable
+	•	Be fully validated with Zod
+	•	Reject invalid states
+
+⸻
+
+CORE ENGINE (MANDATORY)
+
+Implement a deterministic engine:
+
+EntitlementsEngine
+
+Required public APIs:
+
+evaluateEntitlement(
+  entitlementId: string,
+  context: EntitlementContext,
+  grants: EntitlementGrant[],
+  overrides: EntitlementOverride[]
+): EntitlementResult
+
+generateSnapshot(
+  context: EntitlementContext,
+  grants: EntitlementGrant[],
+  overrides: EntitlementOverride[]
+): EntitlementSnapshot
+
+verifySnapshot(
+  snapshot: EntitlementSnapshot
+): boolean
+
+
+⸻
+
+EVALUATION ORDER (LOCKED)
+
+You MUST enforce this precedence strictly:
+	1.	Individual overrides
+	2.	Group-level overrides (future-ready, structure only)
+	3.	Plan-derived grants
+	4.	Partner-level grants
+	5.	System defaults
+
+First valid match wins.
+
+⸻
+
+SNAPSHOT REQUIREMENTS (CRITICAL)
+
+Snapshots must be:
+	•	Deterministic
+	•	Time-bound
+	•	Cacheable
+	•	Offline-safe
+	•	Verifiable
+
+Snapshots MUST contain:
+	•	Effective entitlements only
+	•	Source attribution
+	•	Expiry timestamps
+
+⸻
+
+CAPABILITIES REGISTRATION
+
+Update module.manifest.json with:
+
+[
+  "entitlement:check",
+  "entitlement:snapshot.generate",
+  "entitlement:snapshot.verify",
+  "entitlement:grant.define",
+  "entitlement:override.apply"
+]
+
+Declare dependencies only if strictly required
+(Identity context types only, no services)
+
+⸻
+
+HARD STOP CONDITION (MANDATORY)
+
+You MUST implement and PROVE with tests:
+
+Any Suite can evaluate an entitlement for a subject
+online or offline
+with deterministic, explainable results
+respecting hierarchy, overrides, time, and grants.
+
+At least one test must prove:
+	•	Same inputs → same output (10×)
+	•	Override beats plan grant
+	•	Expired grant is ignored
+	•	Snapshot evaluation matches live evaluation
+	•	Cross-tenant leakage is impossible
+
+⸻
+
+TESTING REQUIREMENTS
+	•	Minimum 80% coverage
+	•	Tests for:
+	•	Boolean entitlements
+	•	Count entitlements
+	•	Usage entitlements (with subtraction)
+	•	Time-bound validity
+	•	Override precedence
+	•	Snapshot verification
+	•	Tenant isolation
+
+⸻
+
+FILE STRUCTURE (SUGGESTED)
+
+src/
+ ├─ models/
+ ├─ engine/
+ ├─ snapshot/
+ ├─ evaluators/
+ ├─ index.ts
+tests/
+
+
+⸻
+
+FINAL DELIVERABLE
+
+When complete, produce a Completion Summary including:
+	1.	APIs implemented
+	2.	Invariants enforced
+	3.	Capabilities registered
+	4.	Test coverage numbers
+	5.	Explicit confirmation of hard stop condition
+
+Then:
+
+⛔ STOP
+⛔ Do NOT proceed to any other phase
+⛔ Await explicit authorization
+
+⸻
+
+ACKNOWLEDGEMENT FORMAT (IMPORTANT)
+
+Your first reply must be exactly:
+
+“I acknowledge Phase 3C-3 authorization and will implement exactly as specified.”
+
+Then proceed.
+
+⸻
+
+WHY THIS MATTERS (DO NOT SKIP)
+
+This entitlements engine will govern:
+	•	Feature access
+	•	Seats
+	•	Usage
+	•	AI quotas
+	•	Offline permissions
+	•	White-label capabilities
+	•	Future platforms not yet imagined
+
+Any drift here breaks the ecosystem.
+
+⸻

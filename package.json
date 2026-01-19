@@ -1,0 +1,18 @@
+{
+  "name": "webwaka-core-entitlements",
+  "version": "0.0.0",
+  "description": "Pricing & Entitlements - Entitlement and access control",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "clean": "rm -rf dist"
+  },
+  "keywords": [],
+  "author": "WebWaka Team",
+  "license": "TBD",
+  "devDependencies": {
+    "typescript": "^5.3.0"
+  }
+}
