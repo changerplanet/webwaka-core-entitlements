@@ -17,6 +17,7 @@ export const EntitlementDefinitionSchema = z
 export type EntitlementDefinition = z.infer<typeof EntitlementDefinitionSchema>;
 
 export const GrantSourceSchema = z.enum([
+  "tenant",
   "plan",
   "partner",
   "system",
@@ -74,6 +75,7 @@ export type EntitlementContext = z.infer<typeof EntitlementContextSchema>;
 export const EntitlementSourceSchema = z.enum([
   "override:individual",
   "override:group",
+  "grant:tenant",
   "grant:plan",
   "grant:partner",
   "grant:system",

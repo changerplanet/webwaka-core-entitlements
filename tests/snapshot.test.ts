@@ -1,9 +1,8 @@
 import { describe, it, expect } from "vitest";
-import { EntitlementsEngine } from "../src/engine";
+import { EntitlementsEngine, CrossTenantAccessError } from "../src/engine";
 import type {
   EntitlementDefinition,
   EntitlementGrant,
-  EntitlementOverride,
   EntitlementContext,
 } from "../src/models";
 
@@ -34,11 +33,11 @@ describe("EntitlementsEngine - Snapshots", () => {
   describe("generateSnapshot", () => {
     it("generates a valid snapshot", () => {
       const engine = new EntitlementsEngine(definitions);
-      const now = Date.now();
+      const fixedTime = 1700000000000;
       const context: EntitlementContext = {
         subjectId: "user_123",
         tenantId: "tenant_abc",
-        evaluationTime: now,
+        evaluationTime: fixedTime,
       };
       const grants: EntitlementGrant[] = [
         {
@@ -48,7 +47,7 @@ describe("EntitlementsEngine - Snapshots", () => {
           tenantId: "tenant_abc",
           source: "plan",
           value: true,
-          validFrom: now - 1000,
+          validFrom: fixedTime - 1000,
         },
         {
           id: "grant_2",
@@ -57,7 +56,7 @@ describe("EntitlementsEngine - Snapshots", () => {
           tenantId: "tenant_abc",
           source: "plan",
           value: 25,
-          validFrom: now - 1000,
+          validFrom: fixedTime - 1000,
         },
       ];
 
@@ -65,8 +64,8 @@ describe("EntitlementsEngine - Snapshots", () => {
 
       expect(snapshot.subjectId).toBe("user_123");
       expect(snapshot.tenantId).toBe("tenant_abc");
-      expect(snapshot.generatedAt).toBe(now);
-      expect(snapshot.expiresAt).toBeGreaterThan(now);
+      expect(snapshot.generatedAt).toBe(fixedTime);
+      expect(snapshot.expiresAt).toBeGreaterThan(fixedTime);
       expect(snapshot.entitlements.length).toBe(2);
       expect(snapshot.checksum).toBeTruthy();
     });
@@ -87,11 +86,11 @@ describe("EntitlementsEngine - Snapshots", () => {
         },
       ];
       const engine = new EntitlementsEngine(testDefinitions);
-      const now = Date.now();
+      const fixedTime = 1700000000000;
       const context: EntitlementContext = {
         subjectId: "user_123",
         tenantId: "tenant_abc",
-        evaluationTime: now,
+        evaluationTime: fixedTime,
       };
       const grants: EntitlementGrant[] = [
         {
@@ -101,7 +100,7 @@ describe("EntitlementsEngine - Snapshots", () => {
           tenantId: "tenant_abc",
           source: "plan",
           value: true,
-          validFrom: now - 1000,
+          validFrom: fixedTime - 1000,
         },
       ];
 
@@ -113,11 +112,11 @@ describe("EntitlementsEngine - Snapshots", () => {
 
     it("includes source attribution", () => {
       const engine = new EntitlementsEngine(definitions);
-      const now = Date.now();
+      const fixedTime = 1700000000000;
       const context: EntitlementContext = {
         subjectId: "user_123",
         tenantId: "tenant_abc",
-        evaluationTime: now,
+        evaluationTime: fixedTime,
       };
       const grants: EntitlementGrant[] = [
         {
@@ -127,7 +126,7 @@ describe("EntitlementsEngine - Snapshots", () => {
           tenantId: "tenant_abc",
           source: "partner",
           value: 50,
-          validFrom: now - 1000,
+          validFrom: fixedTime - 1000,
         },
       ];
 
@@ -143,11 +142,11 @@ describe("EntitlementsEngine - Snapshots", () => {
   describe("verifySnapshot", () => {
     it("verifies a valid snapshot", () => {
       const engine = new EntitlementsEngine(definitions);
-      const now = Date.now();
+      const fixedTime = 1700000000000;
       const context: EntitlementContext = {
         subjectId: "user_123",
         tenantId: "tenant_abc",
-        evaluationTime: now,
+        evaluationTime: fixedTime,
       };
       const grants: EntitlementGrant[] = [
         {
@@ -157,7 +156,7 @@ describe("EntitlementsEngine - Snapshots", () => {
           tenantId: "tenant_abc",
           source: "plan",
           value: true,
-          validFrom: now - 1000,
+          validFrom: fixedTime - 1000,
         },
       ];
 
@@ -169,11 +168,11 @@ describe("EntitlementsEngine - Snapshots", () => {
 
     it("rejects tampered snapshot", () => {
       const engine = new EntitlementsEngine(definitions);
-      const now = Date.now();
+      const fixedTime = 1700000000000;
       const context: EntitlementContext = {
         subjectId: "user_123",
         tenantId: "tenant_abc",
-        evaluationTime: now,
+        evaluationTime: fixedTime,
       };
       const grants: EntitlementGrant[] = [
         {
@@ -183,7 +182,7 @@ describe("EntitlementsEngine - Snapshots", () => {
           tenantId: "tenant_abc",
           source: "plan",
           value: 25,
-          validFrom: now - 1000,
+          validFrom: fixedTime - 1000,
         },
       ];
 
@@ -202,11 +201,11 @@ describe("EntitlementsEngine - Snapshots", () => {
 
     it("rejects snapshot with modified checksum", () => {
       const engine = new EntitlementsEngine(definitions);
-      const now = Date.now();
+      const fixedTime = 1700000000000;
       const context: EntitlementContext = {
         subjectId: "user_123",
         tenantId: "tenant_abc",
-        evaluationTime: now,
+        evaluationTime: fixedTime,
       };
 
       const snapshot = engine.generateSnapshot(context, [], []);
@@ -223,11 +222,11 @@ describe("EntitlementsEngine - Snapshots", () => {
   describe("evaluateFromSnapshot", () => {
     it("evaluates entitlement from snapshot matches live evaluation", () => {
       const engine = new EntitlementsEngine(definitions);
-      const now = Date.now();
+      const fixedTime = 1700000000000;
       const context: EntitlementContext = {
         subjectId: "user_123",
         tenantId: "tenant_abc",
-        evaluationTime: now,
+        evaluationTime: fixedTime,
       };
       const grants: EntitlementGrant[] = [
         {
@@ -237,7 +236,7 @@ describe("EntitlementsEngine - Snapshots", () => {
           tenantId: "tenant_abc",
           source: "plan",
           value: true,
-          validFrom: now - 1000,
+          validFrom: fixedTime - 1000,
         },
         {
           id: "grant_2",
@@ -246,7 +245,7 @@ describe("EntitlementsEngine - Snapshots", () => {
           tenantId: "tenant_abc",
           source: "plan",
           value: 25,
-          validFrom: now - 1000,
+          validFrom: fixedTime - 1000,
         },
       ];
 
@@ -260,7 +259,8 @@ describe("EntitlementsEngine - Snapshots", () => {
       const snapshotResult = engine.evaluateFromSnapshot(
         "feature:analytics",
         snapshot,
-        now + 1000
+        fixedTime + 1000,
+        "tenant_abc"
       );
 
       expect(snapshotResult).not.toBeNull();
@@ -273,18 +273,19 @@ describe("EntitlementsEngine - Snapshots", () => {
       const engine = new EntitlementsEngine(definitions, {
         snapshotTtlMs: 1000,
       });
-      const now = Date.now();
+      const fixedTime = 1700000000000;
       const context: EntitlementContext = {
         subjectId: "user_123",
         tenantId: "tenant_abc",
-        evaluationTime: now,
+        evaluationTime: fixedTime,
       };
 
       const snapshot = engine.generateSnapshot(context, [], []);
       const result = engine.evaluateFromSnapshot(
         "feature:analytics",
         snapshot,
-        now + 5000
+        fixedTime + 5000,
+        "tenant_abc"
       );
 
       expect(result).toBeNull();
@@ -292,11 +293,11 @@ describe("EntitlementsEngine - Snapshots", () => {
 
     it("returns null for tampered snapshot", () => {
       const engine = new EntitlementsEngine(definitions);
-      const now = Date.now();
+      const fixedTime = 1700000000000;
       const context: EntitlementContext = {
         subjectId: "user_123",
         tenantId: "tenant_abc",
-        evaluationTime: now,
+        evaluationTime: fixedTime,
       };
       const grants: EntitlementGrant[] = [
         {
@@ -306,7 +307,7 @@ describe("EntitlementsEngine - Snapshots", () => {
           tenantId: "tenant_abc",
           source: "plan",
           value: 25,
-          validFrom: now - 1000,
+          validFrom: fixedTime - 1000,
         },
       ];
 
@@ -318,10 +319,32 @@ describe("EntitlementsEngine - Snapshots", () => {
       const result = engine.evaluateFromSnapshot(
         "seats:max",
         tamperedSnapshot,
-        now + 1000
+        fixedTime + 1000,
+        "tenant_abc"
       );
 
       expect(result).toBeNull();
+    });
+
+    it("throws CrossTenantAccessError on tenant mismatch", () => {
+      const engine = new EntitlementsEngine(definitions);
+      const fixedTime = 1700000000000;
+      const context: EntitlementContext = {
+        subjectId: "user_123",
+        tenantId: "tenant_abc",
+        evaluationTime: fixedTime,
+      };
+
+      const snapshot = engine.generateSnapshot(context, [], []);
+
+      expect(() =>
+        engine.evaluateFromSnapshot(
+          "feature:analytics",
+          snapshot,
+          fixedTime + 1000,
+          "tenant_xyz"
+        )
+      ).toThrow(CrossTenantAccessError);
     });
   });
 

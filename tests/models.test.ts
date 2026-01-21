@@ -8,6 +8,8 @@ import {
   EntitlementSnapshotSchema,
 } from "../src/models";
 
+const fixedTime = 1700000000000;
+
 describe("EntitlementDefinitionSchema", () => {
   it("validates a boolean entitlement definition", () => {
     const def = {
@@ -71,8 +73,8 @@ describe("EntitlementGrantSchema", () => {
       tenantId: "tenant_abc",
       source: "plan" as const,
       value: true,
-      validFrom: Date.now(),
-      validUntil: Date.now() + 86400000,
+      validFrom: fixedTime,
+      validUntil: fixedTime + 86400000,
     };
     expect(() => EntitlementGrantSchema.parse(grant)).not.toThrow();
   });
@@ -85,7 +87,7 @@ describe("EntitlementGrantSchema", () => {
       tenantId: "tenant_abc",
       source: "partner" as const,
       value: 10,
-      validFrom: Date.now(),
+      validFrom: fixedTime,
     };
     expect(() => EntitlementGrantSchema.parse(grant)).not.toThrow();
   });
@@ -98,7 +100,7 @@ describe("EntitlementGrantSchema", () => {
       tenantId: "tenant_abc",
       source: "system" as const,
       value: true,
-      validFrom: Date.now(),
+      validFrom: fixedTime,
       metadata: { reason: "promotion" },
     };
     expect(() => EntitlementGrantSchema.parse(grant)).not.toThrow();
@@ -112,7 +114,7 @@ describe("EntitlementGrantSchema", () => {
       tenantId: "tenant_abc",
       source: "unknown",
       value: true,
-      validFrom: Date.now(),
+      validFrom: fixedTime,
     };
     expect(() => EntitlementGrantSchema.parse(grant)).toThrow();
   });
@@ -127,7 +129,7 @@ describe("EntitlementOverrideSchema", () => {
       tenantId: "tenant_abc",
       type: "individual" as const,
       value: true,
-      validFrom: Date.now(),
+      validFrom: fixedTime,
       reason: "VIP customer",
     };
     expect(() => EntitlementOverrideSchema.parse(override)).not.toThrow();
@@ -141,7 +143,7 @@ describe("EntitlementOverrideSchema", () => {
       tenantId: "tenant_abc",
       type: "group" as const,
       value: 50,
-      validFrom: Date.now(),
+      validFrom: fixedTime,
     };
     expect(() => EntitlementOverrideSchema.parse(override)).not.toThrow();
   });
@@ -152,7 +154,7 @@ describe("EntitlementContextSchema", () => {
     const context = {
       subjectId: "user_123",
       tenantId: "tenant_abc",
-      evaluationTime: Date.now(),
+      evaluationTime: fixedTime,
     };
     expect(() => EntitlementContextSchema.parse(context)).not.toThrow();
   });
@@ -161,7 +163,7 @@ describe("EntitlementContextSchema", () => {
     const context = {
       subjectId: "user_123",
       tenantId: "tenant_abc",
-      evaluationTime: Date.now(),
+      evaluationTime: fixedTime,
       groupIds: ["group_enterprise", "group_beta"],
     };
     expect(() => EntitlementContextSchema.parse(context)).not.toThrow();
@@ -175,7 +177,7 @@ describe("EntitlementResultSchema", () => {
       granted: true,
       value: true,
       source: "grant:plan" as const,
-      evaluatedAt: Date.now(),
+      evaluatedAt: fixedTime,
     };
     expect(() => EntitlementResultSchema.parse(result)).not.toThrow();
   });
@@ -187,8 +189,8 @@ describe("EntitlementSnapshotSchema", () => {
       id: "snap_123",
       subjectId: "user_123",
       tenantId: "tenant_abc",
-      generatedAt: Date.now(),
-      expiresAt: Date.now() + 3600000,
+      generatedAt: fixedTime,
+      expiresAt: fixedTime + 3600000,
       entitlements: [
         {
           entitlementId: "feature:analytics",

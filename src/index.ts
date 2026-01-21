@@ -1,4 +1,4 @@
-export { EntitlementsEngine } from "./engine";
+export { EntitlementsEngine, CrossTenantAccessError } from "./engine";
 export { evaluateWithPrecedence } from "./evaluators";
 export { generateChecksum, verifyChecksum } from "./snapshot";
 

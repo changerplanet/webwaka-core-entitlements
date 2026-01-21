@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { EntitlementsEngine } from "../src/engine";
+import { EntitlementsEngine, CrossTenantAccessError } from "../src/engine";
 import type {
   EntitlementDefinition,
   EntitlementGrant,
@@ -34,10 +34,11 @@ describe("EntitlementsEngine", () => {
   describe("evaluateEntitlement", () => {
     it("returns default value when no grants or overrides exist", () => {
       const engine = new EntitlementsEngine(definitions);
+      const fixedTime = 1700000000000;
       const context: EntitlementContext = {
         subjectId: "user_123",
         tenantId: "tenant_abc",
-        evaluationTime: Date.now(),
+        evaluationTime: fixedTime,
       };
 
       const result = engine.evaluateEntitlement(
@@ -54,11 +55,11 @@ describe("EntitlementsEngine", () => {
 
     it("grants entitlement from plan grant", () => {
       const engine = new EntitlementsEngine(definitions);
-      const now = Date.now();
+      const fixedTime = 1700000000000;
       const context: EntitlementContext = {
         subjectId: "user_123",
         tenantId: "tenant_abc",
-        evaluationTime: now,
+        evaluationTime: fixedTime,
       };
       const grants: EntitlementGrant[] = [
         {
@@ -68,8 +69,8 @@ describe("EntitlementsEngine", () => {
           tenantId: "tenant_abc",
           source: "plan",
           value: true,
-          validFrom: now - 1000,
-          validUntil: now + 86400000,
+          validFrom: fixedTime - 1000,
+          validUntil: fixedTime + 86400000,
         },
       ];
 
@@ -87,11 +88,11 @@ describe("EntitlementsEngine", () => {
 
     it("count entitlement returns numeric value", () => {
       const engine = new EntitlementsEngine(definitions);
-      const now = Date.now();
+      const fixedTime = 1700000000000;
       const context: EntitlementContext = {
         subjectId: "user_123",
         tenantId: "tenant_abc",
-        evaluationTime: now,
+        evaluationTime: fixedTime,
       };
       const grants: EntitlementGrant[] = [
         {
@@ -101,7 +102,7 @@ describe("EntitlementsEngine", () => {
           tenantId: "tenant_abc",
           source: "plan",
           value: 25,
-          validFrom: now - 1000,
+          validFrom: fixedTime - 1000,
         },
       ];
 
@@ -119,11 +120,11 @@ describe("EntitlementsEngine", () => {
 
     it("usage entitlement evaluates correctly", () => {
       const engine = new EntitlementsEngine(definitions);
-      const now = Date.now();
+      const fixedTime = 1700000000000;
       const context: EntitlementContext = {
         subjectId: "user_123",
         tenantId: "tenant_abc",
-        evaluationTime: now,
+        evaluationTime: fixedTime,
       };
       const grants: EntitlementGrant[] = [
         {
@@ -133,7 +134,7 @@ describe("EntitlementsEngine", () => {
           tenantId: "tenant_abc",
           source: "plan",
           value: 50000,
-          validFrom: now - 1000,
+          validFrom: fixedTime - 1000,
         },
       ];
 
@@ -150,10 +151,11 @@ describe("EntitlementsEngine", () => {
 
     it("throws for unknown entitlement", () => {
       const engine = new EntitlementsEngine(definitions);
+      const fixedTime = 1700000000000;
       const context: EntitlementContext = {
         subjectId: "user_123",
         tenantId: "tenant_abc",
-        evaluationTime: Date.now(),
+        evaluationTime: fixedTime,
       };
 
       expect(() =>
@@ -165,11 +167,11 @@ describe("EntitlementsEngine", () => {
   describe("precedence order", () => {
     it("individual override beats plan grant", () => {
       const engine = new EntitlementsEngine(definitions);
-      const now = Date.now();
+      const fixedTime = 1700000000000;
       const context: EntitlementContext = {
         subjectId: "user_123",
         tenantId: "tenant_abc",
-        evaluationTime: now,
+        evaluationTime: fixedTime,
       };
       const grants: EntitlementGrant[] = [
         {
@@ -179,7 +181,7 @@ describe("EntitlementsEngine", () => {
           tenantId: "tenant_abc",
           source: "plan",
           value: 10,
-          validFrom: now - 1000,
+          validFrom: fixedTime - 1000,
         },
       ];
       const overrides: EntitlementOverride[] = [
@@ -190,7 +192,7 @@ describe("EntitlementsEngine", () => {
           tenantId: "tenant_abc",
           type: "individual",
           value: 100,
-          validFrom: now - 1000,
+          validFrom: fixedTime - 1000,
           reason: "VIP upgrade",
         },
       ];
@@ -208,11 +210,11 @@ describe("EntitlementsEngine", () => {
 
     it("group override beats plan grant", () => {
       const engine = new EntitlementsEngine(definitions);
-      const now = Date.now();
+      const fixedTime = 1700000000000;
       const context: EntitlementContext = {
         subjectId: "user_123",
         tenantId: "tenant_abc",
-        evaluationTime: now,
+        evaluationTime: fixedTime,
         groupIds: ["group_enterprise"],
       };
       const grants: EntitlementGrant[] = [
@@ -223,7 +225,7 @@ describe("EntitlementsEngine", () => {
           tenantId: "tenant_abc",
           source: "plan",
           value: 10,
-          validFrom: now - 1000,
+          validFrom: fixedTime - 1000,
         },
       ];
       const overrides: EntitlementOverride[] = [
@@ -234,7 +236,7 @@ describe("EntitlementsEngine", () => {
           tenantId: "tenant_abc",
           type: "group",
           value: 50,
-          validFrom: now - 1000,
+          validFrom: fixedTime - 1000,
         },
       ];
 
@@ -251,11 +253,11 @@ describe("EntitlementsEngine", () => {
 
     it("individual override beats group override", () => {
       const engine = new EntitlementsEngine(definitions);
-      const now = Date.now();
+      const fixedTime = 1700000000000;
       const context: EntitlementContext = {
         subjectId: "user_123",
         tenantId: "tenant_abc",
-        evaluationTime: now,
+        evaluationTime: fixedTime,
         groupIds: ["group_enterprise"],
       };
       const overrides: EntitlementOverride[] = [
@@ -266,7 +268,7 @@ describe("EntitlementsEngine", () => {
           tenantId: "tenant_abc",
           type: "group",
           value: 50,
-          validFrom: now - 1000,
+          validFrom: fixedTime - 1000,
         },
         {
           id: "override_individual",
@@ -275,7 +277,7 @@ describe("EntitlementsEngine", () => {
           tenantId: "tenant_abc",
           type: "individual",
           value: 200,
-          validFrom: now - 1000,
+          validFrom: fixedTime - 1000,
         },
       ];
 
@@ -290,13 +292,53 @@ describe("EntitlementsEngine", () => {
       expect(result.source).toBe("override:individual");
     });
 
-    it("plan grant beats partner grant", () => {
+    it("tenant grant beats plan grant", () => {
       const engine = new EntitlementsEngine(definitions);
-      const now = Date.now();
+      const fixedTime = 1700000000000;
       const context: EntitlementContext = {
         subjectId: "user_123",
         tenantId: "tenant_abc",
-        evaluationTime: now,
+        evaluationTime: fixedTime,
+      };
+      const grants: EntitlementGrant[] = [
+        {
+          id: "grant_plan",
+          entitlementId: "seats:max",
+          subjectId: "user_123",
+          tenantId: "tenant_abc",
+          source: "plan",
+          value: 10,
+          validFrom: fixedTime - 1000,
+        },
+        {
+          id: "grant_tenant",
+          entitlementId: "seats:max",
+          subjectId: "user_123",
+          tenantId: "tenant_abc",
+          source: "tenant",
+          value: 75,
+          validFrom: fixedTime - 1000,
+        },
+      ];
+
+      const result = engine.evaluateEntitlement(
+        "seats:max",
+        context,
+        grants,
+        []
+      );
+
+      expect(result.value).toBe(75);
+      expect(result.source).toBe("grant:tenant");
+    });
+
+    it("plan grant beats partner grant", () => {
+      const engine = new EntitlementsEngine(definitions);
+      const fixedTime = 1700000000000;
+      const context: EntitlementContext = {
+        subjectId: "user_123",
+        tenantId: "tenant_abc",
+        evaluationTime: fixedTime,
       };
       const grants: EntitlementGrant[] = [
         {
@@ -306,7 +348,7 @@ describe("EntitlementsEngine", () => {
           tenantId: "tenant_abc",
           source: "partner",
           value: 30,
-          validFrom: now - 1000,
+          validFrom: fixedTime - 1000,
         },
         {
           id: "grant_plan",
@@ -315,7 +357,7 @@ describe("EntitlementsEngine", () => {
           tenantId: "tenant_abc",
           source: "plan",
           value: 20,
-          validFrom: now - 1000,
+          validFrom: fixedTime - 1000,
         },
       ];
 
@@ -332,11 +374,11 @@ describe("EntitlementsEngine", () => {
 
     it("partner grant beats system grant", () => {
       const engine = new EntitlementsEngine(definitions);
-      const now = Date.now();
+      const fixedTime = 1700000000000;
       const context: EntitlementContext = {
         subjectId: "user_123",
         tenantId: "tenant_abc",
-        evaluationTime: now,
+        evaluationTime: fixedTime,
       };
       const grants: EntitlementGrant[] = [
         {
@@ -346,7 +388,7 @@ describe("EntitlementsEngine", () => {
           tenantId: "tenant_abc",
           source: "system",
           value: 5,
-          validFrom: now - 1000,
+          validFrom: fixedTime - 1000,
         },
         {
           id: "grant_partner",
@@ -355,7 +397,7 @@ describe("EntitlementsEngine", () => {
           tenantId: "tenant_abc",
           source: "partner",
           value: 15,
-          validFrom: now - 1000,
+          validFrom: fixedTime - 1000,
         },
       ];
 
@@ -374,11 +416,11 @@ describe("EntitlementsEngine", () => {
   describe("time-bound validity", () => {
     it("ignores expired grant", () => {
       const engine = new EntitlementsEngine(definitions);
-      const now = Date.now();
+      const fixedTime = 1700000000000;
       const context: EntitlementContext = {
         subjectId: "user_123",
         tenantId: "tenant_abc",
-        evaluationTime: now,
+        evaluationTime: fixedTime,
       };
       const grants: EntitlementGrant[] = [
         {
@@ -388,8 +430,8 @@ describe("EntitlementsEngine", () => {
           tenantId: "tenant_abc",
           source: "plan",
           value: true,
-          validFrom: now - 86400000,
-          validUntil: now - 1000,
+          validFrom: fixedTime - 86400000,
+          validUntil: fixedTime - 1000,
         },
       ];
 
@@ -406,11 +448,11 @@ describe("EntitlementsEngine", () => {
 
     it("ignores grant not yet valid", () => {
       const engine = new EntitlementsEngine(definitions);
-      const now = Date.now();
+      const fixedTime = 1700000000000;
       const context: EntitlementContext = {
         subjectId: "user_123",
         tenantId: "tenant_abc",
-        evaluationTime: now,
+        evaluationTime: fixedTime,
       };
       const grants: EntitlementGrant[] = [
         {
@@ -420,7 +462,7 @@ describe("EntitlementsEngine", () => {
           tenantId: "tenant_abc",
           source: "plan",
           value: true,
-          validFrom: now + 86400000,
+          validFrom: fixedTime + 86400000,
         },
       ];
 
@@ -437,11 +479,11 @@ describe("EntitlementsEngine", () => {
 
     it("ignores expired override", () => {
       const engine = new EntitlementsEngine(definitions);
-      const now = Date.now();
+      const fixedTime = 1700000000000;
       const context: EntitlementContext = {
         subjectId: "user_123",
         tenantId: "tenant_abc",
-        evaluationTime: now,
+        evaluationTime: fixedTime,
       };
       const overrides: EntitlementOverride[] = [
         {
@@ -451,8 +493,8 @@ describe("EntitlementsEngine", () => {
           tenantId: "tenant_abc",
           type: "individual",
           value: 100,
-          validFrom: now - 86400000,
-          validUntil: now - 1000,
+          validFrom: fixedTime - 86400000,
+          validUntil: fixedTime - 1000,
         },
       ];
 
@@ -469,13 +511,13 @@ describe("EntitlementsEngine", () => {
   });
 
   describe("tenant isolation", () => {
-    it("prevents cross-tenant leakage", () => {
+    it("throws CrossTenantAccessError for cross-tenant grant", () => {
       const engine = new EntitlementsEngine(definitions);
-      const now = Date.now();
+      const fixedTime = 1700000000000;
       const context: EntitlementContext = {
         subjectId: "user_123",
         tenantId: "tenant_abc",
-        evaluationTime: now,
+        evaluationTime: fixedTime,
       };
       const grants: EntitlementGrant[] = [
         {
@@ -485,28 +527,22 @@ describe("EntitlementsEngine", () => {
           tenantId: "tenant_xyz",
           source: "plan",
           value: true,
-          validFrom: now - 1000,
+          validFrom: fixedTime - 1000,
         },
       ];
 
-      const result = engine.evaluateEntitlement(
-        "feature:analytics",
-        context,
-        grants,
-        []
-      );
-
-      expect(result.granted).toBe(false);
-      expect(result.source).toBe("default");
+      expect(() =>
+        engine.evaluateEntitlement("feature:analytics", context, grants, [])
+      ).toThrow(CrossTenantAccessError);
     });
 
-    it("prevents cross-tenant override leakage", () => {
+    it("throws CrossTenantAccessError for cross-tenant override", () => {
       const engine = new EntitlementsEngine(definitions);
-      const now = Date.now();
+      const fixedTime = 1700000000000;
       const context: EntitlementContext = {
         subjectId: "user_123",
         tenantId: "tenant_abc",
-        evaluationTime: now,
+        evaluationTime: fixedTime,
       };
       const overrides: EntitlementOverride[] = [
         {
@@ -516,30 +552,40 @@ describe("EntitlementsEngine", () => {
           tenantId: "tenant_xyz",
           type: "individual",
           value: 999,
-          validFrom: now - 1000,
+          validFrom: fixedTime - 1000,
         },
       ];
 
-      const result = engine.evaluateEntitlement(
-        "seats:max",
-        context,
-        [],
-        overrides
-      );
+      expect(() =>
+        engine.evaluateEntitlement("seats:max", context, [], overrides)
+      ).toThrow(CrossTenantAccessError);
+    });
 
-      expect(result.value).toBe(5);
-      expect(result.source).toBe("default");
+    it("throws CrossTenantAccessError on snapshot tenant mismatch", () => {
+      const engine = new EntitlementsEngine(definitions);
+      const fixedTime = 1700000000000;
+      const context: EntitlementContext = {
+        subjectId: "user_123",
+        tenantId: "tenant_abc",
+        evaluationTime: fixedTime,
+      };
+
+      const snapshot = engine.generateSnapshot(context, [], []);
+
+      expect(() =>
+        engine.evaluateFromSnapshot("feature:analytics", snapshot, fixedTime + 1000, "tenant_xyz")
+      ).toThrow(CrossTenantAccessError);
     });
   });
 
   describe("determinism", () => {
     it("same inputs produce same output 10 times", () => {
       const engine = new EntitlementsEngine(definitions);
-      const now = 1700000000000;
+      const fixedTime = 1700000000000;
       const context: EntitlementContext = {
         subjectId: "user_123",
         tenantId: "tenant_abc",
-        evaluationTime: now,
+        evaluationTime: fixedTime,
       };
       const grants: EntitlementGrant[] = [
         {
@@ -549,7 +595,7 @@ describe("EntitlementsEngine", () => {
           tenantId: "tenant_abc",
           source: "plan",
           value: 25,
-          validFrom: now - 1000,
+          validFrom: fixedTime - 1000,
         },
       ];
       const overrides: EntitlementOverride[] = [
@@ -560,7 +606,7 @@ describe("EntitlementsEngine", () => {
           tenantId: "tenant_abc",
           type: "individual",
           value: true,
-          validFrom: now - 1000,
+          validFrom: fixedTime - 1000,
         },
       ];
 

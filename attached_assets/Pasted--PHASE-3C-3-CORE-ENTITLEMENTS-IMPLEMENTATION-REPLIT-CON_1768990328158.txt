@@ -1,0 +1,228 @@
+
+🚀 PHASE 3C-3 — CORE ENTITLEMENTS IMPLEMENTATION (REPLIT)
+
+CONTEXT (READ CAREFULLY)
+
+You are implementing Phase 3C-3: webwaka-core-entitlements for the WebWaka platform.
+
+This is a CORE, HEADLESS, PURE LOGIC MODULE.
+
+The Phase 3C-2 Specification is LOCKED and must be followed exactly.
+
+🚫 DO NOT add UI
+🚫 DO NOT add storage adapters
+🚫 DO NOT add APIs, servers, or frameworks
+🚫 DO NOT introduce pricing, billing, subscriptions, or payments
+🚫 DO NOT introduce permissions or feature flags
+🚫 DO NOT deviate from the precedence rules
+
+This task is pure TypeScript library implementation only.
+
+⸻
+
+🔒 SOURCE OF TRUTH (IMMUTABLE)
+	•	WebWaka Ecosystem Constitution v1.5+
+	•	Phase 3C-2 — Core Entitlements Specification (LOCKED)
+
+If anything conflicts:
+➡ The specification overrides assumptions.
+
+⸻
+
+📦 TARGET REPOSITORY (MANDATORY)
+
+Repository:
+changerplanet/webwaka-core-entitlements
+
+CRITICAL RULE (DO NOT VIOLATE)
+	•	The repository already exists
+	•	You MUST CLONE IT FIRST
+	•	If cloning fails or the repo is not found → STOP and report
+	•	If the repo is empty → leave it empty (do NOT scaffold or add placeholders unless instructed)
+
+🚫 Replit must NOT auto-create scaffolding
+🚫 Replit must NOT add “minimal runnable placeholders”
+
+If Replit auto-adds anything:
+➡ DELETE IT IMMEDIATELY AFTER CLONING
+
+⸻
+
+🎯 IMPLEMENTATION OBJECTIVE
+
+Implement a pure, deterministic Core Entitlements engine that:
+	•	Evaluates entitlement grants and overrides
+	•	Enforces strict precedence hierarchy
+	•	Supports offline-safe snapshots
+	•	Is explainable, deterministic, and tenant-isolated
+
+⸻
+
+🧠 FUNCTIONAL REQUIREMENTS (MANDATORY)
+
+1️⃣ Domain Models (Zod-Validated)
+
+Implement immutable models:
+	•	EntitlementDefinition
+	•	EntitlementGrant
+	•	EntitlementOverride
+	•	EntitlementContext
+	•	EntitlementResult
+	•	EntitlementSnapshot
+
+All models:
+	•	Must be Zod-validated
+	•	Must be deeply immutable
+	•	Must be JSON-serializable
+
+⸻
+
+2️⃣ Precedence Hierarchy (LOCKED)
+
+Evaluation MUST follow exactly this order:
+	1.	Individual Overrides
+	2.	Group Overrides
+	3.	Tenant Grants
+	4.	Plan Grants
+	5.	Partner Grants
+	6.	System Defaults
+	7.	Definition Default
+
+➡ First valid (non-expired) rule wins.
+
+No exceptions.
+
+⸻
+
+3️⃣ Core APIs (EXACT)
+
+Implement all of the following:
+
+evaluateEntitlement(
+  entitlementId,
+  context,
+  grants,
+  overrides
+): EntitlementResult
+
+generateSnapshot(
+  context,
+  grants,
+  overrides
+): EntitlementSnapshot
+
+verifySnapshot(snapshot): boolean
+
+evaluateFromSnapshot(
+  entitlementId,
+  snapshot,
+  currentTime
+): EntitlementResult
+
+
+⸻
+
+4️⃣ Determinism & Time
+	•	evaluationTime must be explicitly provided
+	•	❌ No Date.now()
+	•	❌ No randomness
+	•	Same input → same output (provable)
+
+⸻
+
+5️⃣ Tenant Isolation (CRITICAL)
+	•	Every evaluation must require tenantId
+	•	Cross-tenant data access must throw
+	•	Snapshot verification must reject tenant mismatch
+
+⸻
+
+6️⃣ Snapshot Integrity
+	•	Canonical JSON serialization
+	•	SHA-256 checksum
+	•	Tamper detection
+	•	Expiry enforcement
+
+Snapshots must be:
+	•	Offline evaluable
+	•	Deterministic
+	•	Verifiable
+
+⸻
+
+🧪 TEST REQUIREMENTS (NON-NEGOTIABLE)
+
+You MUST implement tests proving:
+
+✅ Override beats plan
+✅ Expired grants are ignored
+✅ Snapshot evaluation === live evaluation
+✅ Determinism (10× repeated evaluation)
+✅ Cross-tenant access is rejected
+✅ Snapshot tampering is detected
+
+Coverage:
+	•	≥ 80% statements
+	•	Focus on logic, not mocks
+
+⸻
+
+📄 MODULE MANIFEST (MANDATORY)
+
+Update module.manifest.json with capabilities:
+
+[
+  "entitlement:check",
+  "entitlement:snapshot.generate",
+  "entitlement:snapshot.verify",
+  "entitlement:grant.define",
+  "entitlement:override.apply"
+]
+
+
+⸻
+
+❌ EXPLICIT EXCLUSIONS
+
+You must NOT implement:
+	•	❌ Storage or databases
+	•	❌ Pricing logic
+	•	❌ Feature flags
+	•	❌ Permissions
+	•	❌ UI or dashboards
+	•	❌ Cron jobs
+	•	❌ Background workers
+
+⸻
+
+🧾 FINAL DELIVERABLE
+
+When done, provide a Completion Report including:
+	1.	APIs implemented
+	2.	Precedence enforcement proof
+	3.	Snapshot guarantees
+	4.	Test count + coverage
+	5.	Hard-stop proof explanation
+	6.	Final commit SHA
+
+⸻
+
+⛔ HARD STOP
+
+After completing this task:
+
+⛔ STOP
+⛔ Do NOT proceed to any other phase
+⛔ Await explicit authorization
+
+⸻
+
+✅ ACKNOWLEDGEMENT FORMAT
+
+Reply only with:
+
+“Phase 3C-3 acknowledged. Implementing Core Entitlements exactly as specified.”
+
+Then execute.
+
+⸻

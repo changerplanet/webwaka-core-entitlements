@@ -15,16 +15,36 @@ import {
 import { evaluateWithPrecedence } from "../evaluators";
 import { generateChecksum, verifyChecksum } from "../snapshot";
 
+import { createHash } from "crypto";
+
 const DEFAULT_SNAPSHOT_TTL_MS = 3600000;
 
-function simpleHash(str: string): string {
-  let hash = 0;
-  for (let i = 0; i < str.length; i++) {
-    const char = str.charCodeAt(i);
-    hash = ((hash << 5) - hash) + char;
-    hash = hash & hash;
+export class CrossTenantAccessError extends Error {
+  constructor(expectedTenantId: string, actualTenantId: string) {
+    super(`Cross-tenant access denied: expected tenant '${expectedTenantId}', found '${actualTenantId}'`);
+    this.name = "CrossTenantAccessError";
   }
-  return Math.abs(hash).toString(16).padStart(8, "0");
+}
+
+function validateTenantIsolation(
+  tenantId: string,
+  grants: readonly EntitlementGrant[],
+  overrides: readonly EntitlementOverride[]
+): void {
+  for (const grant of grants) {
+    if (grant.tenantId !== tenantId) {
+      throw new CrossTenantAccessError(tenantId, grant.tenantId);
+    }
+  }
+  for (const override of overrides) {
+    if (override.tenantId !== tenantId) {
+      throw new CrossTenantAccessError(tenantId, override.tenantId);
+    }
+  }
+}
+
+function simpleHash(str: string): string {
+  return createHash("sha256").update(str).digest("hex").substring(0, 16);
 }
 
 function generateSnapshotId(
@@ -67,13 +87,15 @@ export class EntitlementsEngine {
     grants.forEach((g) => EntitlementGrantSchema.parse(g));
     overrides.forEach((o) => EntitlementOverrideSchema.parse(o));
 
+    validateTenantIsolation(context.tenantId, grants, overrides);
+
     const definition = this.definitions.get(entitlementId);
     if (!definition) {
       throw new Error(`Unknown entitlement: ${entitlementId}`);
     }
 
-    const tenantGrants = grants.filter((g) => g.tenantId === context.tenantId);
-    const tenantOverrides = overrides.filter((o) => o.tenantId === context.tenantId);
+    const tenantGrants = grants;
+    const tenantOverrides = overrides;
 
     const match = evaluateWithPrecedence(
       entitlementId,
@@ -107,11 +129,13 @@ export class EntitlementsEngine {
     grants.forEach((g) => EntitlementGrantSchema.parse(g));
     overrides.forEach((o) => EntitlementOverrideSchema.parse(o));
 
+    validateTenantIsolation(context.tenantId, grants, overrides);
+
     const entitlements: EffectiveEntitlement[] = [];
 
     for (const [entitlementId, definition] of this.definitions) {
-      const tenantGrants = grants.filter((g) => g.tenantId === context.tenantId);
-      const tenantOverrides = overrides.filter((o) => o.tenantId === context.tenantId);
+      const tenantGrants = grants;
+      const tenantOverrides = overrides;
 
       const match = evaluateWithPrecedence(
         entitlementId,
@@ -178,10 +202,15 @@ export class EntitlementsEngine {
   evaluateFromSnapshot(
     entitlementId: string,
     snapshot: EntitlementSnapshot,
-    currentTime: number
+    currentTime: number,
+    expectedTenantId: string
   ): EntitlementResult | null {
     if (!this.verifySnapshot(snapshot)) {
       return null;
+    }
+
+    if (snapshot.tenantId !== expectedTenantId) {
+      throw new CrossTenantAccessError(expectedTenantId, snapshot.tenantId);
     }
 
     if (currentTime >= snapshot.expiresAt) {

@@ -1,15 +1,5 @@
+import { createHash } from "crypto";
 import type { EffectiveEntitlement } from "../models";
-
-function simpleHash(str: string): string {
-  let hash = 0;
-  for (let i = 0; i < str.length; i++) {
-    const char = str.charCodeAt(i);
-    hash = ((hash << 5) - hash) + char;
-    hash = hash & hash;
-  }
-  const hashNum = Math.abs(hash);
-  return hashNum.toString(16).padStart(8, "0");
-}
 
 export function generateChecksum(
   subjectId: string,
@@ -35,7 +25,7 @@ export function generateChecksum(
     })),
   });
 
-  return simpleHash(payload);
+  return createHash("sha256").update(payload).digest("hex");
 }
 
 export function verifyChecksum(

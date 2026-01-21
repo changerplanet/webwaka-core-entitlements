@@ -69,7 +69,7 @@ function findGrantBySource(
   entitlementId: string,
   context: EntitlementContext,
   grants: readonly EntitlementGrant[],
-  sourceType: "plan" | "partner" | "system"
+  sourceType: "tenant" | "plan" | "partner" | "system"
 ): EvaluationMatch | null {
   for (const grant of grants) {
     if (
@@ -80,7 +80,9 @@ function findGrantBySource(
       isValid(grant.validFrom, grant.validUntil, context.evaluationTime)
     ) {
       const source: EntitlementSource =
-        sourceType === "plan"
+        sourceType === "tenant"
+          ? "grant:tenant"
+          : sourceType === "plan"
           ? "grant:plan"
           : sourceType === "partner"
           ? "grant:partner"
@@ -108,6 +110,9 @@ export function evaluateWithPrecedence(
   if (match) return match;
 
   match = findGroupOverride(entitlementId, context, overrides);
+  if (match) return match;
+
+  match = findGrantBySource(entitlementId, context, grants, "tenant");
   if (match) return match;
 
   match = findGrantBySource(entitlementId, context, grants, "plan");

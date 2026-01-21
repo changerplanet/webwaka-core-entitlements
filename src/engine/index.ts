@@ -1,1 +1,1 @@
-export { EntitlementsEngine } from "./EntitlementsEngine";
+export { EntitlementsEngine, CrossTenantAccessError } from "./EntitlementsEngine";
