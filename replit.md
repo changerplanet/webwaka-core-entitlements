@@ -43,20 +43,21 @@ evaluateEntitlement(entitlementId, context, grants, overrides): EntitlementResul
 // Generate cacheable snapshot
 generateSnapshot(context, grants, overrides): EntitlementSnapshot
 
-// Verify snapshot integrity
+// Verify snapshot integrity (SHA-256 checksum)
 verifySnapshot(snapshot): boolean
 
-// Evaluate from cached snapshot
-evaluateFromSnapshot(entitlementId, snapshot, currentTime): EntitlementResult | null
+// Evaluate from cached snapshot (requires expectedTenantId for tenant isolation)
+evaluateFromSnapshot(entitlementId, snapshot, currentTime, expectedTenantId): EntitlementResult | null
 ```
 
 ## Precedence Order (Strict)
 1. Individual overrides
 2. Group-level overrides
-3. Plan-derived grants
-4. Partner-level grants
-5. System defaults
-6. Definition defaults
+3. Tenant grants
+4. Plan-derived grants
+5. Partner-level grants
+6. System defaults
+7. Definition defaults
 
 ## Capabilities
 - `entitlement:check`
