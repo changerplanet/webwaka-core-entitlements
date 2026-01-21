@@ -1,5 +1,5 @@
 {
-  "name": "webwaka-core-entitlements",
+  "name": "@webwaka/core-entitlements",
   "version": "0.0.0",
   "description": "Pricing & Entitlements - Entitlement and access control",
   "main": "./dist/index.js",
@@ -23,5 +23,8 @@
   "dependencies": {
     "@types/node": "^25.0.9",
     "zod": "^4.3.5"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }
