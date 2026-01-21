@@ -2,6 +2,15 @@
 
 **Pricing & Entitlements - Entitlement and access control**
 
+## Installation
+
+```bash
+npm install @webwaka/core-entitlements
+```
+
+**Note**: This package is published to npm registry. GitHub-based installs are no longer supported.
+
+
 ## Overview
 
 This repository is part of the WebWaka Core Substrate. It provides shared services for the WebWaka platform.
