@@ -1,0 +1,25 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.VERSION = exports.EntitlementSnapshotSchema = exports.EffectiveEntitlementSchema = exports.EntitlementResultSchema = exports.EntitlementSourceSchema = exports.EntitlementContextSchema = exports.EntitlementOverrideSchema = exports.OverrideTypeSchema = exports.EntitlementGrantSchema = exports.GrantSourceSchema = exports.EntitlementDefinitionSchema = exports.EntitlementTypeSchema = exports.verifyChecksum = exports.generateChecksum = exports.evaluateWithPrecedence = exports.CrossTenantAccessError = exports.EntitlementsEngine = void 0;
+var engine_1 = require("./engine");
+Object.defineProperty(exports, "EntitlementsEngine", { enumerable: true, get: function () { return engine_1.EntitlementsEngine; } });
+Object.defineProperty(exports, "CrossTenantAccessError", { enumerable: true, get: function () { return engine_1.CrossTenantAccessError; } });
+var evaluators_1 = require("./evaluators");
+Object.defineProperty(exports, "evaluateWithPrecedence", { enumerable: true, get: function () { return evaluators_1.evaluateWithPrecedence; } });
+var snapshot_1 = require("./snapshot");
+Object.defineProperty(exports, "generateChecksum", { enumerable: true, get: function () { return snapshot_1.generateChecksum; } });
+Object.defineProperty(exports, "verifyChecksum", { enumerable: true, get: function () { return snapshot_1.verifyChecksum; } });
+var models_1 = require("./models");
+Object.defineProperty(exports, "EntitlementTypeSchema", { enumerable: true, get: function () { return models_1.EntitlementTypeSchema; } });
+Object.defineProperty(exports, "EntitlementDefinitionSchema", { enumerable: true, get: function () { return models_1.EntitlementDefinitionSchema; } });
+Object.defineProperty(exports, "GrantSourceSchema", { enumerable: true, get: function () { return models_1.GrantSourceSchema; } });
+Object.defineProperty(exports, "EntitlementGrantSchema", { enumerable: true, get: function () { return models_1.EntitlementGrantSchema; } });
+Object.defineProperty(exports, "OverrideTypeSchema", { enumerable: true, get: function () { return models_1.OverrideTypeSchema; } });
+Object.defineProperty(exports, "EntitlementOverrideSchema", { enumerable: true, get: function () { return models_1.EntitlementOverrideSchema; } });
+Object.defineProperty(exports, "EntitlementContextSchema", { enumerable: true, get: function () { return models_1.EntitlementContextSchema; } });
+Object.defineProperty(exports, "EntitlementSourceSchema", { enumerable: true, get: function () { return models_1.EntitlementSourceSchema; } });
+Object.defineProperty(exports, "EntitlementResultSchema", { enumerable: true, get: function () { return models_1.EntitlementResultSchema; } });
+Object.defineProperty(exports, "EffectiveEntitlementSchema", { enumerable: true, get: function () { return models_1.EffectiveEntitlementSchema; } });
+Object.defineProperty(exports, "EntitlementSnapshotSchema", { enumerable: true, get: function () { return models_1.EntitlementSnapshotSchema; } });
+exports.VERSION = "0.0.0";
+//# sourceMappingURL=index.js.map
